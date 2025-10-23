@@ -242,3 +242,11 @@ app_license = "mit"
 # 	"Logging DocType Name": 30  # days to retain logs
 # }
 
+# Website Route Rules
+# -------------------
+# Define routes for serving the frontend application
+website_route_rules = [
+    {'from_route': '/portal', 'to_route': 'portal'},
+    {'from_route': '/portal/<path:app_path>', 'to_route': 'portal'},
+]
+

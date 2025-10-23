@@ -1,0 +1,81 @@
+{
+    "actions": [],
+    "allow_rename": 1,
+    "creation": "2025-10-20 15:31:28.545671",
+    "doctype": "DocType",
+    "engine": "InnoDB",
+    "field_order": [
+      "section_break_l3my",
+      "model_name",
+      "model_type",
+      "model_path",
+      "default_model",
+      "active",
+      "notes"
+    ],
+    "fields": [
+      {
+        "fieldname": "section_break_l3my",
+        "fieldtype": "Section Break"
+      },
+      {
+        "fieldname": "model_name",
+        "fieldtype": "Data",
+        "label": "Model Name",
+        "reqd": 1
+      },
+      {
+        "fieldname": "model_type",
+        "fieldtype": "Select",
+        "label": "Model Type",
+        "options": "Template Only\nLightweight LLM\n3rd Party API",
+        "default": "Template Only"
+      },
+      {
+        "fieldname": "model_path",
+        "fieldtype": "Data",
+        "label": "Model Path / URL"
+      },
+      {
+        "fieldname": "default_model",
+        "fieldtype": "Check",
+        "label": "Default Model"
+      },
+      {
+        "fieldname": "active",
+        "fieldtype": "Check",
+        "label": "Active"
+      },
+      {
+        "fieldname": "notes",
+        "fieldtype": "Small Text",
+        "label": "Notes"
+      }
+    ],
+    "grid_page_length": 50,
+    "index_web_pages_for_search": 1,
+    "issingle": 1,
+    "links": [],
+    "modified": "2025-10-20 15:31:28.545671",
+    "modified_by": "Administrator",
+    "module": "Ex Commerce",
+    "name": "AI Model Registry",
+    "owner": "Administrator",
+    "permissions": [
+      {
+        "create": 1,
+        "delete": 1,
+        "email": 1,
+        "print": 1,
+        "read": 1,
+        "role": "System Manager",
+        "share": 1,
+        "write": 1
+      }
+    ],
+    "row_format": "Dynamic",
+    "rows_threshold_for_grid_search": 20,
+    "sort_field": "modified",
+    "sort_order": "DESC",
+    "states": []
+  }

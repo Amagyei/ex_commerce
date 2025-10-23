@@ -1,0 +1,99 @@
+{
+    "actions": [],
+    "allow_rename": 1,
+    "creation": "2025-10-20 14:56:18.967175",
+    "doctype": "DocType",
+    "engine": "InnoDB",
+    "field_order": [
+      "section_break_dfvg",
+      "event_name",
+      "endpoint_url",
+      "method",
+      "headers",
+      "payload_template",
+      "amended_from",
+      "created_at"
+    ],
+    "fields": [
+      {
+        "fieldname": "section_break_dfvg",
+        "fieldtype": "Section Break"
+      },
+      {
+        "fieldname": "event_name",
+        "fieldtype": "Data",
+        "label": "Event Name",
+        "reqd": 1
+      },
+      {
+        "fieldname": "endpoint_url",
+        "fieldtype": "Data",
+        "label": "Endpoint URL",
+        "reqd": 1
+      },
+      {
+        "fieldname": "method",
+        "fieldtype": "Select",
+        "label": "HTTP Method",
+        "options": "POST\nGET\nPUT\nDELETE",
+        "default": "POST"
+      },
+      {
+        "fieldname": "headers",
+        "fieldtype": "Table",
+        "label": "Headers",
+        "options": "AI Webhook Header"
+      },
+      {
+        "fieldname": "payload_template",
+        "fieldtype": "Text",
+        "label": "Payload Template"
+      },
+      {
+        "fieldname": "amended_from",
+        "fieldtype": "Link",
+        "label": "Amended From",
+        "no_copy": 1,
+        "options": "AI Webhook Event",
+        "print_hide": 1,
+        "read_only": 1,
+        "search_index": 1
+      },
+      {
+        "fieldname": "created_at",
+        "fieldtype": "Datetime",
+        "label": "Created At",
+        "default": "now",
+        "read_only": 1
+      }
+    ],
+    "grid_page_length": 50,
+    "index_web_pages_for_search": 1,
+    "is_submittable": 1,
+    "links": [],
+    "modified": "2025-10-20 14:56:18.967175",
+    "modified_by": "Administrator",
+    "module": "Ex Commerce",
+    "name": "AI Webhook Event",
+    "owner": "Administrator",
+    "permissions": [
+      {
+        "create": 1,
+        "delete": 1,
+        "email": 1,
+        "export": 1,
+        "print": 1,
+        "read": 1,
+        "report": 1,
+        "role": "System Manager",
+        "share": 1,
+        "submit": 1,
+        "write": 1
+      }
+    ],
+    "row_format": "Dynamic",
+    "rows_threshold_for_grid_search": 20,
+    "sort_field": "created_at",
+    "sort_order": "DESC",
+    "states": []
+  }

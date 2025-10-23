@@ -1,0 +1,76 @@
+{
+    "actions": [],
+    "allow_rename": 1,
+    "creation": "2025-10-20 15:31:51.872584",
+    "doctype": "DocType",
+    "engine": "InnoDB",
+    "field_order": [
+      "attach_iweg",
+      "context_type",
+      "related_message",
+      "customer",
+      "created_at"
+    ],
+    "fields": [
+      {
+        "fieldname": "attach_iweg",
+        "fieldtype": "Attach",
+        "label": "Attachment"
+      },
+      {
+        "fieldname": "context_type",
+        "fieldtype": "Select",
+        "label": "Context Type",
+        "options": "Customer\nOrder\nProduct\nGeneral",
+        "default": "General"
+      },
+      {
+        "fieldname": "related_message",
+        "fieldtype": "Link",
+        "label": "Related Message",
+        "options": "AI Message Log",
+        "read_only": 1,
+        "no_copy": 1
+      },
+      {
+        "fieldname": "customer",
+        "fieldtype": "Link",
+        "label": "Customer",
+        "options": "Customer"
+      },
+      {
+        "fieldname": "created_at",
+        "fieldtype": "Datetime",
+        "label": "Created At",
+        "default": "now",
+        "read_only": 1
+      }
+    ],
+    "grid_page_length": 50,
+    "index_web_pages_for_search": 1,
+    "links": [],
+    "modified": "2025-10-20 15:32:03.590347",
+    "modified_by": "Administrator",
+    "module": "Ex Commerce",
+    "name": "AI Context Memory",
+    "owner": "Administrator",
+    "permissions": [
+      {
+        "create": 1,
+        "delete": 1,
+        "email": 1,
+        "export": 1,
+        "print": 1,
+        "read": 1,
+        "report": 1,
+        "role": "System Manager",
+        "share": 1,
+        "write": 1
+      }
+    ],
+    "row_format": "Dynamic",
+    "rows_threshold_for_grid_search": 20,
+    "sort_field": "created_at",
+    "sort_order": "DESC",
+    "states": []
+  }

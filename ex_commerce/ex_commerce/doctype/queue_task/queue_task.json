@@ -1,0 +1,94 @@
+{
+    "actions": [],
+    "allow_rename": 1,
+    "creation": "2025-10-20 15:29:13.091908",
+    "description": "To offload heavy logic (embedding creation, text processing) to Redis workers.",
+    "doctype": "DocType",
+    "engine": "InnoDB",
+    "field_order": [
+      "section_break_zrfd",
+      "task_name",
+      "task_type",
+      "status",
+      "assigned_to",
+      "amended_from",
+      "created_at"
+    ],
+    "fields": [
+      {
+        "fieldname": "section_break_zrfd",
+        "fieldtype": "Section Break"
+      },
+      {
+        "fieldname": "task_name",
+        "fieldtype": "Data",
+        "label": "Task Name",
+        "reqd": 1
+      },
+      {
+        "fieldname": "task_type",
+        "fieldtype": "Select",
+        "label": "Task Type",
+        "options": "Embedding\nProcessing\nIndexing\nOther",
+        "default": "Embedding"
+      },
+      {
+        "fieldname": "status",
+        "fieldtype": "Select",
+        "label": "Status",
+        "options": "Pending\nProcessing\nCompleted\nFailed",
+        "default": "Pending"
+      },
+      {
+        "fieldname": "assigned_to",
+        "fieldtype": "Link",
+        "label": "Assigned To",
+        "options": "Employee"
+      },
+      {
+        "fieldname": "amended_from",
+        "fieldtype": "Link",
+        "label": "Amended From",
+        "no_copy": 1,
+        "options": "Queue Task",
+        "print_hide": 1,
+        "read_only": 1
+      },
+      {
+        "fieldname": "created_at",
+        "fieldtype": "Datetime",
+        "label": "Created At",
+        "default": "now",
+        "read_only": 1
+      }
+    ],
+    "grid_page_length": 50,
+    "index_web_pages_for_search": 0,
+    "is_submittable": 1,
+    "links": [],
+    "modified": "2025-10-20 15:29:39.520227",
+    "modified_by": "Administrator",
+    "module": "Ex Commerce",
+    "name": "Queue Task",
+    "owner": "Administrator",
+    "permissions": [
+      {
+        "create": 1,
+        "delete": 1,
+        "email": 1,
+        "export": 1,
+        "print": 1,
+        "read": 1,
+        "report": 1,
+        "role": "System Manager",
+        "share": 1,
+        "submit": 1,
+        "write": 1
+      }
+    ],
+    "row_format": "Dynamic",
+    "rows_threshold_for_grid_search": 20,
+    "sort_field": "created_at",
+    "sort_order": "DESC",
+    "states": []
+  }

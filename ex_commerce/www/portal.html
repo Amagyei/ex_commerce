@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/assets/ex_commerce/frontend/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>portal</title>
+    <script type="module" crossorigin src="/assets/ex_commerce/frontend/assets/index-D_dxb3Mt.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/ex_commerce/frontend/assets/index-oFF4A8kJ.css">
+  </head>
+  <body>
+    <div id="root"></div>
+  
+          <script>
+              {% for key in boot %}
+              window["{{ key }}"] = {{ boot[key] | tojson }};
+              {% endfor %}
+          </script>
+          </body>
+          
+</html>

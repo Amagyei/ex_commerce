@@ -1,0 +1,82 @@
+{
+    "actions": [],
+    "allow_rename": 1,
+    "creation": "2025-10-20 15:27:06.630552",
+    "doctype": "DocType",
+    "engine": "InnoDB",
+    "field_order": [
+      "attach_qoss",
+      "task_description",
+      "priority",
+      "assigned_to",
+      "status",
+      "created_at"
+    ],
+    "fields": [
+      {
+        "fieldname": "attach_qoss",
+        "fieldtype": "Attach"
+      },
+      {
+        "fieldname": "task_description",
+        "fieldtype": "Small Text",
+        "label": "Task Description",
+        "reqd": 1
+      },
+      {
+        "fieldname": "priority",
+        "fieldtype": "Select",
+        "label": "Priority",
+        "options": "Low\nMedium\nHigh",
+        "default": "Medium"
+      },
+      {
+        "fieldname": "assigned_to",
+        "fieldtype": "Link",
+        "label": "Assigned To",
+        "options": "Employee"
+      },
+      {
+        "fieldname": "status",
+        "fieldtype": "Select",
+        "label": "Status",
+        "options": "Pending\nIn Progress\nCompleted",
+        "default": "Pending"
+      },
+      {
+        "fieldname": "created_at",
+        "fieldtype": "Datetime",
+        "label": "Created At",
+        "default": "now",
+        "read_only": 1
+      }
+    ],
+    "grid_page_length": 50,
+    "index_web_pages_for_search": 0,
+    "issingle": 0,
+    "links": [],
+    "modified": "2025-10-20 15:27:12.442518",
+    "modified_by": "Administrator",
+    "module": "Ex Commerce",
+    "name": "Knowledge Update Queue",
+    "owner": "Administrator",
+    "permissions": [
+      {
+        "create": 1,
+        "delete": 1,
+        "email": 1,
+        "export": 1,
+        "print": 1,
+        "read": 1,
+        "report": 1,
+        "role": "System Manager",
+        "share": 1,
+        "write": 1
+      }
+    ],
+    "row_format": "Dynamic",
+    "rows_threshold_for_grid_search": 20,
+    "sort_field": "created_at",
+    "sort_order": "DESC",
+    "states": []
+  }

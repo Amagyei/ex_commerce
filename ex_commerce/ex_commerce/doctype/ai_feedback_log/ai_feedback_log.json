@@ -1,0 +1,86 @@
+{
+    "actions": [],
+    "allow_rename": 1,
+    "creation": "2025-10-20 15:29:57.972427",
+    "doctype": "DocType",
+    "engine": "InnoDB",
+    "field_order": [
+      "section_break_dsnv",
+      "feedback_text",
+      "customer",
+      "related_message",
+      "amended_from",
+      "created_at"
+    ],
+    "fields": [
+      {
+        "fieldname": "section_break_dsnv",
+        "fieldtype": "Section Break"
+      },
+      {
+        "fieldname": "feedback_text",
+        "fieldtype": "Small Text",
+        "label": "Feedback Text"
+      },
+      {
+        "fieldname": "customer",
+        "fieldtype": "Link",
+        "label": "Customer",
+        "options": "Customer"
+      },
+      {
+        "fieldname": "related_message",
+        "fieldtype": "Link",
+        "label": "Related Message",
+        "options": "AI Message Log",
+        "read_only": 1,
+        "no_copy": 1
+      },
+      {
+        "fieldname": "amended_from",
+        "fieldtype": "Link",
+        "label": "Amended From",
+        "no_copy": 1,
+        "options": "AI Feedback Log",
+        "print_hide": 1,
+        "read_only": 1,
+        "search_index": 1
+      },
+      {
+        "fieldname": "created_at",
+        "fieldtype": "Datetime",
+        "label": "Created At",
+        "default": "now",
+        "read_only": 1
+      }
+    ],
+    "grid_page_length": 50,
+    "index_web_pages_for_search": 1,
+    "is_submittable": 1,
+    "links": [],
+    "modified": "2025-10-20 15:29:57.972427",
+    "modified_by": "Administrator",
+    "module": "Ex Commerce",
+    "name": "AI Feedback Log",
+    "owner": "Administrator",
+    "permissions": [
+      {
+        "create": 1,
+        "delete": 1,
+        "email": 1,
+        "export": 1,
+        "print": 1,
+        "read": 1,
+        "report": 1,
+        "role": "System Manager",
+        "share": 1,
+        "submit": 1,
+        "write": 1
+      }
+    ],
+    "row_format": "Dynamic",
+    "rows_threshold_for_grid_search": 20,
+    "sort_field": "created_at",
+    "sort_order": "DESC",
+    "states": []
+  }
