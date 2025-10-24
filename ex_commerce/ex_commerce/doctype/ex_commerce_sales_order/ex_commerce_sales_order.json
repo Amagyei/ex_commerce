@@ -1,5 +1,21 @@
 {
-    "actions": [],
+    "actions": [
+     {
+      "action": "ex_commerce.ex_commerce.doctype.ex_commerce_sales_order.ex_commerce_sales_order.test_phone_lookup",
+      "label": "Test Phone Lookup",
+      "type": "Action"
+     },
+     {
+      "action": "ex_commerce.ex_commerce.doctype.ex_commerce_sales_order.ex_commerce_sales_order.create_customer_from_guest",
+      "label": "Create Customer from Guest Info",
+      "type": "Action"
+     },
+     {
+      "action": "ex_commerce.ex_commerce.doctype.ex_commerce_sales_order.ex_commerce_sales_order.create_erpnext_sales_order",
+      "label": "Create ERPNext Sales Order",
+      "type": "Action"
+     }
+    ],
     "allow_auto_repeat": 1,
     "allow_import": 1,
     "autoname": "naming_series:",
@@ -15,6 +31,10 @@
      "guest_name",
      "guest_email",
      "guest_phone",
+     "customer_section",
+     "customer",
+     "customer_name",
+     "erpnext_sales_order",
      "order_type",
      "column_break_7",
      "transaction_date",
@@ -196,7 +216,7 @@
       "no_copy": 1,
       "oldfieldname": "naming_series",
       "oldfieldtype": "Select",
-      "options": "SAL-ORD-.YYYY.-",
+      "options": "EXC-ORD-.YYYY.-",
       "print_hide": 1,
       "reqd": 1,
       "set_only_once": 1
@@ -229,6 +249,47 @@
       "label": "Guest Phone",
       "options": "Phone",
       "reqd": 1
+     },
+     {
+      "collapsible": 1,
+      "fieldname": "customer_section",
+      "fieldtype": "Section Break",
+      "hide_days": 1,
+      "hide_seconds": 1,
+      "label": "Customer Assignment",
+      "options": "fa fa-users"
+     },
+     {
+      "fieldname": "customer",
+      "fieldtype": "Link",
+      "hide_days": 1,
+      "hide_seconds": 1,
+      "in_global_search": 1,
+      "in_standard_filter": 1,
+      "label": "Customer",
+      "options": "Customer",
+      "search_index": 1,
+      "width": "150px"
+     },
+     {
+      "depends_on": "customer",
+      "fieldname": "customer_name",
+      "fieldtype": "Data",
+      "hide_days": 1,
+      "hide_seconds": 1,
+      "label": "Customer Name",
+      "read_only": 1,
+      "width": "150px"
+     },
+     {
+      "fieldname": "erpnext_sales_order",
+      "fieldtype": "Link",
+      "hide_days": 1,
+      "hide_seconds": 1,
+      "label": "ERPNext Sales Order",
+      "options": "Sales Order",
+      "read_only": 1,
+      "width": "150px"
      },
      {
       "default": "Sales",
@@ -1597,7 +1658,7 @@
     "modified": "2025-10-23 13:45:48.468039",
     "modified_by": "Administrator",
     "module": "Ex Commerce",
-    "name": "Sales Order",
+    "name": "Ex Commerce Sales Order",
     "naming_rule": "By \"Naming Series\" field",
     "owner": "Administrator",
     "permissions": [

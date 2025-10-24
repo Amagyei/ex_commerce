@@ -34,11 +34,16 @@ export interface SalesOrder {
 
 export interface OrderResponse {
 	message: string;
-	sales_order: {
+	ex_commerce_sales_order: {
 		name: string;
 		status: string;
 		total: number;
 		grand_total: number;
+		guest_name: string;
+		guest_email: string;
+		guest_phone: string;
+		transaction_date: string;
+		delivery_date: string;
 	};
 }
 

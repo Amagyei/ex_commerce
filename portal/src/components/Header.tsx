@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 import { CartApi } from "@/lib/api/cart";
+import { AuthStatus } from "./AuthStatus";
 
 export const Header = () => {
   const { data: cartData } = useQuery({
@@ -37,6 +38,7 @@ export const Header = () => {
               )}
             </Button>
           </Link>
+          <AuthStatus />
         </nav>
       </div>
     </header>

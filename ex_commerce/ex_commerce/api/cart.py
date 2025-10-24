@@ -4,10 +4,8 @@ from frappe.utils import get_request_session
 import json
 
 
-# CSRF validation is working correctly now
-# def skip_csrf_for_guest():
-# 	if frappe.session.user == "Guest":
-# 		frappe.local.flags.disable_csrf = True
+# CSRF validation is now properly handled through guest session establishment
+# No need to skip CSRF validation - guest users get proper CSRF tokens
 
 
 def get_guest_cart_id():
