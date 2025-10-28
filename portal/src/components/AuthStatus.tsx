@@ -27,7 +27,6 @@ export function AuthStatus() {
     return (
       <div className="flex items-center gap-2 text-sm text-green-600">
         <CheckCircle className="h-4 w-4" />
-        <span>Connected</span>
       </div>
     );
   }
@@ -39,3 +38,5 @@ export function AuthStatus() {
     </div>
   );
 }
+
+

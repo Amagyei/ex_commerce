@@ -132,10 +132,11 @@ export async function getSessionInfo(): Promise<any> {
 // Enhanced fetch function with management_pack error handling patterns
 export async function frappeRequest(url: string, options: RequestInit = {}): Promise<Response> {
   const method = options.method || 'GET';
-  const maxRetries = 3;
+  const maxRetries = 2; // Reduced from 3 to avoid excessive retries
   let retryCount = 0;
+  let hasReBootstrapped = false; // Track if we've already re-bootstrapped
   
-  while (retryCount < maxRetries) {
+  while (retryCount <= maxRetries) {
     try {
       const headers = {
         ...getFrappeUiHeaders({ method }),
@@ -148,12 +149,23 @@ export async function frappeRequest(url: string, options: RequestInit = {}): Pro
         headers,
       });
 
-      // Management pack error handling pattern
-      if ([400, 401, 403].includes(response.status)) {
-        console.warn(`🔐 API: Auth/CSRF error (attempt ${retryCount + 1}), re-bootstrapping...`);
+      // If successful, return immediately
+      if (response.ok) {
+        return response;
+      }
+
+      // Only retry auth/CSRF errors once
+      if ([400, 401, 403].includes(response.status) && !hasReBootstrapped) {
+        console.warn(`🔐 API: Auth/CSRF error (attempt ${retryCount + 1}), re-bootstrapping once...`);
         
         // Re-bootstrap authentication (management_pack pattern)
-        await bootstrapFrappeUiAuth();
+        const authSuccess = await bootstrapFrappeUiAuth();
+        hasReBootstrapped = true; // Mark that we've attempted re-bootstrap
+        
+        if (!authSuccess) {
+          console.error('🔐 API: Re-bootstrap failed');
+          return response; // Return the error response instead of retrying
+        }
         
         // Retry with fresh headers
         const retryHeaders = {
@@ -161,29 +173,26 @@ export async function frappeRequest(url: string, options: RequestInit = {}): Pro
           ...options.headers,
         };
         
+        console.log('🔐 API: Retrying request with fresh token...');
         const retryResponse = await fetch(url, {
           ...options,
           credentials: 'include',
           headers: retryHeaders,
         });
         
-        if (retryResponse.ok) {
-          return retryResponse;
-        }
-        
-        retryCount++;
-        continue;
+        return retryResponse; // Return whatever we get (success or failure)
       }
 
+      // For other errors or if we've already re-bootstrapped, return the response
       return response;
       
     } catch (error) {
       console.warn(`🔐 API: Request failed (attempt ${retryCount + 1}):`, error);
       retryCount++;
       
-      if (retryCount < maxRetries) {
-        console.log(`🔐 API: Retrying in ${retryCount * 1000}ms...`);
-        await new Promise(resolve => setTimeout(resolve, retryCount * 1000));
+      if (retryCount <= maxRetries) {
+        console.log(`🔐 API: Retrying in ${retryCount * 500}ms...`);
+        await new Promise(resolve => setTimeout(resolve, retryCount * 500));
       } else {
         throw error;
       }

@@ -38,7 +38,7 @@ def clear_cart_items():
 
 @frappe.whitelist(allow_guest=True)
 def create_order(customer_info, delivery_info):
-	"""Create a Sales Order from cart items."""
+	"""Create a Sales Order from cart items using customer information."""
 	# Validate required fields
 	if not customer_info:
 		frappe.throw("Customer information is required")
@@ -51,68 +51,72 @@ def create_order(customer_info, delivery_info):
 	if not cart_items:
 		frappe.throw("Cart is empty")
 	
+	# Get or create customer - the customer should already exist from the frontend lookup/creation
+	# The customer_info should contain the customer ID from the frontend
+	customer_id = customer_info.get('customer_id')
+	
+	if not customer_id:
+		# Fallback: try to find customer by phone or email
+		customer_id = frappe.db.get_value(
+			"Customer",
+			{"mobile_no": customer_info.get('phone')},
+			"name"
+		)
+		
+		if not customer_id and customer_info.get('email'):
+			customer_id = frappe.db.get_value(
+				"Customer",
+				{"email_id": customer_info.get('email')},
+				"name"
+			)
+	
+	if not customer_id:
+		frappe.throw("Customer not found. Please ensure customer is created before placing order.")
+	
+	# Get customer document to verify it exists
+	customer_doc = frappe.get_doc("Customer", customer_id)
+	
 	# Get default company, currency, and price list
 	default_company = frappe.get_single_value("Global Defaults", "default_company")
 	default_currency = frappe.get_single_value("Global Defaults", "default_currency")
 	default_price_list = frappe.get_single_value("Selling Settings", "selling_price_list")
 	
-	# Ensure we have valid email and phone values
-	guest_email = customer_info.get('email') or 'guest@example.com'
-	guest_phone = customer_info.get('phone') or '000-000-0000'
-	# Create Ex Commerce Sales Order with proper field mapping
-	ex_commerce_order = frappe.get_doc({
-		"doctype": "Ex Commerce Sales Order",
-		"naming_series": "EXC-ORD-.YYYY.-",  # Set explicit naming series
-		"guest_name": customer_info.get('name', 'Guest Customer'),
-		"guest_email": customer_info.get('email', 'guest@example.com'),  # Required field
-		"guest_phone": customer_info.get('phone', '000-000-0000'),  # Required field
+	# Create Sales Order
+	sales_order = frappe.get_doc({
+		"doctype": "Sales Order",
+		"naming_series": "SAL-ORD-.YYYY.-",
+		"customer": customer_id,
+		"customer_name": customer_doc.customer_name,
 		"transaction_date": nowdate(),
 		"delivery_date": add_days(nowdate(), 7),  # Default 7 days delivery
 		"company": default_company,
 		"currency": default_currency,
-		"conversion_rate": 1.0,  # Required field - default to 1 for same currency
+		"conversion_rate": 1.0,
 		"selling_price_list": default_price_list,
-		"price_list_currency": default_currency,  # Required field
-		"plc_conversion_rate": 1.0,  # Required field - price list conversion rate
+		"price_list_currency": default_currency,
+		"plc_conversion_rate": 1.0,
 		"order_type": "Sales",
-		"status": "Draft",
 		"items": []
 	})
 	
-	# Set guest information after document creation
-	ex_commerce_order.guest_email = guest_email
-	ex_commerce_order.guest_phone = guest_phone
-	
-	# Add cart items to Ex Commerce Sales Order with proper field mapping
+	# Add cart items to Sales Order
 	for cart_item in cart_items:
 		# Get item details for required fields
 		item_doc = frappe.get_doc("Item", cart_item['item_code'])
 		
-		ex_commerce_order.append("items", {
+		sales_order.append("items", {
 			"item_code": cart_item['item_code'],
 			"item_name": cart_item['item_name'],
 			"qty": cart_item['qty'],
 			"rate": cart_item['rate'],
 			"amount": cart_item['qty'] * cart_item['rate'],
-			"uom": item_doc.stock_uom,  # Required field - get from Item
-			"conversion_factor": 1.0,  # Required field - default to 1
+			"uom": item_doc.stock_uom,
+			"conversion_factor": 1.0,
 			"stock_uom": item_doc.stock_uom,
 			"warehouse": frappe.get_single_value("Stock Settings", "default_warehouse") or ""
 		})
 	
-	# Add delivery information to proper Ex Commerce Sales Order fields
-	if delivery_info.get('address'):
-		ex_commerce_order.guest_billing_address = delivery_info['address']
-	
-	if delivery_info.get('phone'):
-		# Update guest phone if different from customer phone
-		if delivery_info['phone'] != customer_info.get('phone', ''):
-			ex_commerce_order.guest_phone = delivery_info['phone']
-	
-	if delivery_info.get('notes'):
-		ex_commerce_order.terms = delivery_info['notes']
-	
-	# Add delivery information as additional notes
+	# Add delivery information as notes
 	delivery_notes = []
 	if delivery_info.get('address'):
 		delivery_notes.append(f"Delivery Address: {delivery_info['address']}")
@@ -122,28 +126,27 @@ def create_order(customer_info, delivery_info):
 		delivery_notes.append(f"Delivery Notes: {delivery_info['notes']}")
 	
 	if delivery_notes:
-		ex_commerce_order.terms = (ex_commerce_order.terms or "") + "\n" + "\n".join(delivery_notes)
+		sales_order.terms = "\n".join(delivery_notes)
 	
-	# Save Ex Commerce Sales Order
-	ex_commerce_order.flags.ignore_permissions = True
-	ex_commerce_order.insert()
-	ex_commerce_order.submit()
+	# Save Sales Order
+	sales_order.flags.ignore_permissions = True
+	sales_order.insert()
+	sales_order.submit()
 	
 	# Clear cart after successful order
 	clear_cart_items()
 	
 	return {
 		"message": "Order created successfully",
-		"ex_commerce_sales_order": {
-			"name": ex_commerce_order.name,
-			"status": ex_commerce_order.status,
-			"total": ex_commerce_order.total,
-			"grand_total": ex_commerce_order.grand_total,
-			"guest_name": ex_commerce_order.guest_name,
-			"guest_email": ex_commerce_order.guest_email,
-			"guest_phone": ex_commerce_order.guest_phone,
-			"transaction_date": ex_commerce_order.transaction_date,
-			"delivery_date": ex_commerce_order.delivery_date
+		"sales_order": {
+			"name": sales_order.name,
+			"status": sales_order.status,
+			"customer": sales_order.customer,
+			"customer_name": sales_order.customer_name,
+			"total": sales_order.total,
+			"grand_total": sales_order.grand_total,
+			"transaction_date": sales_order.transaction_date,
+			"delivery_date": sales_order.delivery_date
 		}
 	}
 

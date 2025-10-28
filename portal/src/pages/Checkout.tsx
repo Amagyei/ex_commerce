@@ -86,12 +86,14 @@ export default function Checkout() {
     mutationFn: ({ customerInfo, deliveryInfo }: { customerInfo: any; deliveryInfo: any }) =>
       OrdersApi.createOrder(customerInfo, deliveryInfo),
     onSuccess: (data) => {
-      setCreatedOrder(data.ex_commerce_sales_order);
+      console.log('✅ CHECKOUT: Order created successfully:', data);
+      setCreatedOrder(data.sales_order);
       setOrderComplete(true);
       queryClient.invalidateQueries({ queryKey: ['cart'] });
       toast.success("Order placed successfully!");
     },
     onError: (error) => {
+      console.error('❌ CHECKOUT: Order creation failed:', error);
       toast.error("Failed to place order. Please try again.");
     },
   });
@@ -106,27 +108,90 @@ export default function Checkout() {
 
     const formData = new FormData(e.currentTarget);
     
-    // Use existing customer data if available, otherwise use form data
-    const customerInfo = customerLookup?.found && customerLookup?.customer ? {
-      name: customerLookup.customer.customer_name,
-      email: customerLookup.customer.email_id || formData.get('email') as string,
-      phone: phoneNumber,
-    } : {
-      name: `${formData.get('firstName')} ${formData.get('lastName')}`,
-      email: formData.get('email') as string,
-      phone: phoneNumber,
-    };
+    let customerInfo;
+    let deliveryInfo;
+    
+    // If customer lookup failed, create customer first
+    if (!customerLookup?.found) {
+      console.log('👤 CHECKOUT: Customer lookup failed, creating new customer...');
+      
+      const firstName = formData.get('firstName') as string;
+      const lastName = formData.get('lastName') as string;
+      
+      const customerData = {
+        customer_name: `${firstName} ${lastName}`,
+        first_name: firstName,
+        last_name: lastName,
+        phone: phoneNumber,
+        address_line1: formData.get('address') as string,
+        address_line2: "", // Can be added to form if needed
+        city: formData.get('city') as string,
+        state: formData.get('state') as string || "",
+        pincode: "00233", // Default zip code for Ghana
+        country: "Ghana" // Default country
+      };
+      
+      try {
+        const createResult = await CustomerLookupApi.createCustomer(customerData);
+        
+        if (createResult.success && createResult.customer) {
+          console.log('✅ CHECKOUT: Customer created successfully:', {
+            customer: createResult.customer,
+            contact: createResult.contact,
+            address: createResult.address
+          });
+          toast.success(`Customer ${createResult.customer.customer_name} created successfully!`);
+          
+          // Update customer lookup state
+          setCustomerLookup({
+            success: true,
+            found: true,
+            customer: createResult.customer,
+            source: "Created"
+          });
+          
+          customerInfo = {
+            name: createResult.customer.customer_name,
+            email: createResult.customer.email_id || "",
+            phone: phoneNumber,
+            customer_id: createResult.customer.name, // ERPNext Customer ID
+          };
+        } else {
+          console.error('❌ CHECKOUT: Failed to create customer:', createResult.error);
+          toast.error(`Failed to create customer: ${createResult.error}`);
+          return;
+        }
+      } catch (error) {
+        console.error('❌ CHECKOUT: Error creating customer:', error);
+        toast.error("Failed to create customer");
+        return;
+      }
+      
+      deliveryInfo = {
+        address: `${formData.get('address')}, ${formData.get('city')}, ${formData.get('state')}`,
+        phone: phoneNumber,
+        notes: '',
+      };
+    } else {
+      // Use existing customer data
+      customerInfo = {
+        name: customerLookup.customer.customer_name,
+        email: customerLookup.customer.email_id || "",
+        phone: phoneNumber,
+        customer_id: customerLookup.customer.name, // ERPNext Customer ID
+      };
 
-    // Use selected address if available, otherwise use form data
-    const deliveryInfo = selectedAddress ? {
-      address: `${selectedAddress.address_line1}${selectedAddress.address_line2 ? ', ' + selectedAddress.address_line2 : ''}, ${selectedAddress.city || ''}, ${selectedAddress.state || ''} ${selectedAddress.pincode || ''}`,
-      phone: selectedAddress.phone || phoneNumber,
-      notes: formData.get('notes') as string || '',
-    } : {
-      address: `${formData.get('address')}, ${formData.get('city')}, ${formData.get('state')} ${formData.get('zip')}`,
-      phone: phoneNumber,
-      notes: formData.get('notes') as string || '',
-    };
+      // Use selected address if available, otherwise use form data
+      deliveryInfo = selectedAddress ? {
+        address: `${selectedAddress.address_line1}${selectedAddress.address_line2 ? ', ' + selectedAddress.address_line2 : ''}, ${selectedAddress.city || ''}, ${selectedAddress.state || ''}`,
+        phone: selectedAddress.phone || phoneNumber,
+        notes: '',
+      } : {
+        address: `${formData.get('address')}, ${formData.get('city')}, ${formData.get('state')}`,
+        phone: phoneNumber,
+        notes: '',
+      };
+    }
 
     createOrderMutation.mutate({ customerInfo, deliveryInfo });
   };
@@ -168,7 +233,7 @@ export default function Checkout() {
               Order #{createdOrder?.name}
             </p>
             <p className="text-muted-foreground mb-2">
-              Customer: {createdOrder?.guest_name}
+              Customer: {createdOrder?.customer_name}
             </p>
             <p className="text-muted-foreground mb-2">
               Total: ₵{createdOrder?.grand_total?.toFixed(2)}
@@ -319,41 +384,22 @@ export default function Checkout() {
                         </div>
 
                         <div className="space-y-2">
-                          <Label htmlFor="email">Email</Label>
-                          <Input id="email" name="email" type="email" required />
-                        </div>
-
-                        <div className="space-y-2">
                           <Label htmlFor="address">Delivery Address</Label>
                           <Textarea id="address" name="address" required rows={3} />
                         </div>
 
-                        <div className="grid sm:grid-cols-3 gap-4">
+                        <div className="grid sm:grid-cols-2 gap-4">
                           <div className="space-y-2">
                             <Label htmlFor="city">City</Label>
                             <Input id="city" name="city" required />
                           </div>
                           <div className="space-y-2">
-                            <Label htmlFor="state">State</Label>
+                            <Label htmlFor="state">Region</Label>
                             <Input id="state" name="state" required />
-                          </div>
-                          <div className="space-y-2">
-                            <Label htmlFor="zip">ZIP Code</Label>
-                            <Input id="zip" name="zip" required />
                           </div>
                         </div>
                       </div>
                     )}
-
-                    <div className="space-y-2">
-                      <Label htmlFor="notes">Delivery Notes (Optional)</Label>
-                      <Textarea 
-                        id="notes" 
-                        name="notes" 
-                        rows={2} 
-                        placeholder="Any special delivery instructions..." 
-                      />
-                    </div>
 
                     <div className="flex space-x-4">
                       <Button

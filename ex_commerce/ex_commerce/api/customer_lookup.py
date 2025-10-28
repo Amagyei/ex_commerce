@@ -189,3 +189,32 @@ def debug_contact_lookup(phone_number):
             "success": False,
             "error": str(e)
         }
+
+
+@frappe.whitelist(allow_guest=True)
+def create_customer_from_checkout(name=None, email=None, phone=None, address=None, city=None, state=None, zip=None):
+    """
+    Create customer from checkout form data.
+    This is a wrapper around create_customer_with_details for backward compatibility.
+    """
+    from ex_commerce.ex_commerce.api.customer_creation import create_customer_with_details
+    
+    # Split name into first and last name
+    name_parts = (name or '').strip().split(' ', 1)
+    first_name = name_parts[0] if name_parts else ''
+    last_name = name_parts[1] if len(name_parts) > 1 else ''
+    
+    customer_data = {
+        "customer_name": (name or '').strip(),
+        "first_name": first_name,
+        "last_name": last_name,
+        "phone": (phone or '').strip(),
+        "address_line1": (address or '').strip(),
+        "address_line2": "",
+        "city": (city or '').strip(),
+        "state": (state or '').strip(),
+        "pincode": (zip or '').strip(),
+        "country": "Ghana"
+    }
+    
+    return create_customer_with_details(customer_data)

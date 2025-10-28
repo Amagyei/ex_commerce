@@ -4,6 +4,7 @@ export interface CustomerInfo {
 	name: string;
 	email?: string;
 	phone: string;
+	customer_id?: string; // Customer DocType name from ERPNext
 }
 
 export interface DeliveryInfo {
@@ -34,14 +35,13 @@ export interface SalesOrder {
 
 export interface OrderResponse {
 	message: string;
-	ex_commerce_sales_order: {
+	sales_order: {
 		name: string;
 		status: string;
+		customer: string;
+		customer_name: string;
 		total: number;
 		grand_total: number;
-		guest_name: string;
-		guest_email: string;
-		guest_phone: string;
 		transaction_date: string;
 		delivery_date: string;
 	};
@@ -58,11 +58,13 @@ export interface OrderStatusResponse {
 
 export const OrdersApi = {
 	async createOrder(customerInfo: CustomerInfo, deliveryInfo: DeliveryInfo): Promise<OrderResponse> {
-		const response = await frappeApi.post<OrderResponse>(endpoints.createOrder, {
+		const response = await frappeApi.post<{ message: OrderResponse }>(endpoints.createOrder, {
 			customer_info: customerInfo,
 			delivery_info: deliveryInfo
 		});
-		return response;
+		console.log('📦 ORDERS_API: createOrder response:', response);
+		// Frappe wraps the response in a 'message' field
+		return response.message;
 	},
 
 	async getOrder(orderId: string): Promise<GetOrderResponse> {

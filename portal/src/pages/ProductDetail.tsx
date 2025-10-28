@@ -1,47 +1,57 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, ShoppingCart, Package } from "lucide-react";
 import type { Product } from "@/types/product";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-
-const fetchProductDetail = async (itemCode: string): Promise<Product> => {
-  // Mock data - replace with actual API call
-  return {
-    name: "Product 1",
-    item_code: itemCode,
-    item_name: "Premium Wireless Headphones",
-    description: "Experience premium sound quality with our state-of-the-art wireless headphones. Featuring advanced noise cancellation technology, comfortable over-ear design, and up to 30 hours of battery life. Perfect for music lovers, travelers, and professionals who demand the best audio experience.",
-    image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800",
-    price: 299.99,
-    in_stock: true,
-    stock_qty: 45,
-    category: "Electronics",
-    brand: "AudioTech",
-  };
-};
+import { ProductsApi } from "@/lib/api/products";
+import { CartApi } from "@/lib/api/cart";
 
 export default function ProductDetail() {
   const { itemCode } = useParams<{ itemCode: string }>();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
-  const { data: product, isLoading } = useQuery({
+  const { data: product, isLoading, error } = useQuery({
     queryKey: ['product', itemCode],
-    queryFn: () => fetchProductDetail(itemCode!),
+    queryFn: () => ProductsApi.getProduct(itemCode!),
     enabled: !!itemCode,
   });
 
+  const addToCartMutation = useMutation({
+    mutationFn: (itemCode: string) => CartApi.addToCart(itemCode, 1),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['cart'] });
+      toast.success(`${product?.item_name} added to cart`);
+    },
+    onError: (error) => {
+      console.error('🛍️ PRODUCTS: Add to cart error:', error);
+      toast.error("Failed to add item to cart");
+    }
+  });
+
   const handleAddToCart = () => {
-    if (product) {
-      toast.success(`${product.item_name} added to cart`);
-      // Add cart logic here
+    if (product && product.item_code) {
+      addToCartMutation.mutate(product.item_code);
     }
   };
 
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="animate-pulse text-lg">Loading...</div>
+        <div className="animate-pulse text-lg">Loading product details...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold mb-4">Error loading product</h2>
+          <p className="text-muted-foreground mb-4">{error instanceof Error ? error.message : 'Unknown error'}</p>
+          <Button onClick={() => navigate('/')}>Back to Products</Button>
+        </div>
       </div>
     );
   }
@@ -113,10 +123,10 @@ export default function ProductDetail() {
                 size="lg"
                 className="w-full md:w-auto"
                 onClick={handleAddToCart}
-                disabled={!product.in_stock}
+                disabled={!product.in_stock || addToCartMutation.isPending}
               >
                 <ShoppingCart className="mr-2 h-5 w-5" />
-                {product.in_stock ? 'Add to Cart' : 'Out of Stock'}
+                {addToCartMutation.isPending ? 'Adding...' : product.in_stock ? 'Add to Cart' : 'Out of Stock'}
               </Button>
             </div>
           </div>

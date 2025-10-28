@@ -60,3 +60,5 @@ def validate_csrf_token(token):
             "message": "Validation failed",
             "error": str(e)
         }
+
+
