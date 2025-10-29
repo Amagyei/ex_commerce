@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 import type { Product } from "@/types/product";
 import { ProductCard } from "@/components/ProductCard";
 import { ProductsApi } from "@/lib/api/products";
@@ -9,6 +10,7 @@ import heroImage from "@/assets/hero-ecommerce.jpg";
 
 export default function Products() {
   console.log('🛍️ PRODUCTS: Component function called');
+  const navigate = useNavigate();
   
   const { data: productsData, isLoading, error } = useQuery({
     queryKey: ['products'],
@@ -44,6 +46,11 @@ export default function Products() {
   const handleAddToCart = async (product: Product) => {
     console.log('🛍️ PRODUCTS: Adding to cart:', product);
     try {
+      if (product.has_variants) {
+        // For templates, route to the product detail to select options
+        navigate(`/product/${product.item_code}`);
+        return;
+      }
       const result = await CartApi.addToCart(product.item_code, 1);
       console.log('🛍️ PRODUCTS: Add to cart result:', result);
       toast.success(`${product.item_name} added to cart`);
@@ -83,7 +90,7 @@ export default function Products() {
         <h2 className="text-3xl font-bold mb-8">Featured Products</h2>
         
         {isLoading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
             {[...Array(4)].map((_, i) => (
               <div key={i} className="h-96 bg-muted animate-pulse rounded-lg" />
             ))}
@@ -97,7 +104,7 @@ export default function Products() {
             <p className="text-muted-foreground">No products found.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
             {products.map((product) => (
               <ProductCard
                 key={product.item_code}

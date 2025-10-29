@@ -10,7 +10,10 @@ interface ProductCardProps {
 }
 
 export const ProductCard = ({ product, onAddToCart }: ProductCardProps) => {
-  const imageUrl = product.image || "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400";
+  const imageUrl =
+    product.image ||
+    product.first_available_variant_image ||
+    "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400";
   
   return (
     <Card className="overflow-hidden transition-all duration-300 hover:shadow-[var(--shadow-card)] hover:border-primary/20">
@@ -34,9 +37,17 @@ export const ProductCard = ({ product, onAddToCart }: ProductCardProps) => {
             {product.description}
           </p>
         )}
-        <p className="text-xl font-bold text-primary">
-          {product.formatted_price || `₵${product.price?.toFixed(2) || '0.00'}`}
-        </p>
+        {product.has_variants ? (
+          <p className="text-xl font-bold text-primary">
+            {product.min_price !== undefined
+              ? `From ₵${product.min_price.toFixed(2)}`
+              : 'From ₵—'}
+          </p>
+        ) : (
+          <p className="text-xl font-bold text-primary">
+            {product.formatted_price || `₵${product.price?.toFixed(2) || '0.00'}`}
+          </p>
+        )}
       </CardContent>
       <CardFooter className="p-4 pt-0">
         <Button
@@ -44,7 +55,7 @@ export const ProductCard = ({ product, onAddToCart }: ProductCardProps) => {
           onClick={() => onAddToCart(product)}
         >
           <ShoppingCart className="mr-2 h-4 w-4" />
-          Add to Cart
+          {product.has_variants ? 'View Options' : 'Add to Cart'}
         </Button>
       </CardFooter>
     </Card>

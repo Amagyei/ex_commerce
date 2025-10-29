@@ -114,9 +114,52 @@ export default function ProductDetail() {
               </span>
             </div>
 
-            <p className="text-muted-foreground mb-8 leading-relaxed">
+            <p className="text-muted-foreground mb-6 leading-relaxed">
               {product.description}
             </p>
+
+            {/* Variant list (compact cards) */}
+            {product.has_variants ? (
+              <div className="space-y-3 mb-6">
+                {product.variants?.map((v) => (
+                  <div key={v.item_code} className="border rounded-md p-3">
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                      {/* image */}
+                      <div className="w-full sm:w-[20%] sm:min-w-[84px] sm:max-w-[110px] aspect-square bg-secondary rounded overflow-hidden">
+                        <img
+                          src={v.image || product.image || ''}
+                          alt={v.item_name}
+                          className="h-full w-full object-cover"
+                        />
+                      </div>
+                      {/* info */}
+                      <div className="flex-1 min-w-0">
+                        <div className="font-medium truncate">{v.item_name}</div>
+                        {v.description && (
+                          <div className="text-sm text-muted-foreground line-clamp-2">
+                            {v.description}
+                          </div>
+                        )}
+                        <div className="text-sm font-semibold mt-1">
+                          {v.formatted_price ? `₵${v.formatted_price}` : v.price ? `₵${v.price.toFixed(2)}` : 'Price on request'}
+                        </div>
+                      </div>
+                      {/* add button */}
+                      <div className="w-full sm:w-[20%] sm:min-w-[140px]">
+                        <Button
+                          className="w-full"
+                          onClick={() => addToCartMutation.mutate(v.item_code)}
+                          disabled={addToCartMutation.isPending}
+                        >
+                          <ShoppingCart className="mr-2 h-4 w-4" />
+                          Add
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : null}
 
             <div className="mt-auto">
               <Button
@@ -126,7 +169,7 @@ export default function ProductDetail() {
                 disabled={!product.in_stock || addToCartMutation.isPending}
               >
                 <ShoppingCart className="mr-2 h-5 w-5" />
-                {addToCartMutation.isPending ? 'Adding...' : product.in_stock ? 'Add to Cart' : 'Out of Stock'}
+                {product.has_variants ? 'View Variants Above' : addToCartMutation.isPending ? 'Adding...' : product.in_stock ? 'Add to Cart' : 'Out of Stock'}
               </Button>
             </div>
           </div>

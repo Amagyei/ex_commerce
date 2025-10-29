@@ -9,6 +9,21 @@ export interface Product {
   in_stock?: boolean;
   category?: string;
   brand?: string;
+  has_variants?: number;
+  min_price?: number;
+  max_price?: number;
+  variant_count?: number;
+  first_available_variant_image?: string;
+  variants?: Variant[];
+}
+
+export interface Variant {
+  item_code: string;
+  item_name: string;
+  description?: string;
+  image?: string;
+  price?: number;
+  formatted_price?: string;
 }
 
 export interface CartItem {
